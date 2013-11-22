@@ -602,6 +602,10 @@ final class DocParser
         if ('\\' !== $name[0]) {
             $alias = (false === $pos = strpos($name, '\\'))? $name : substr($name, 0, $pos);
 
+            if ($this->ignoreNotImportedAnnotations || isset($this->ignoredAnnotationNames[$name])) {
+                return false;
+            }
+
             $found = false;
             if ($this->namespaces) {
                 foreach ($this->namespaces as $namespace) {
@@ -626,10 +630,6 @@ final class DocParser
             }
 
             if (!$found) {
-                if ($this->ignoreNotImportedAnnotations || isset($this->ignoredAnnotationNames[$name])) {
-                    return false;
-                }
-
                 throw AnnotationException::semanticalError(sprintf('The annotation "@%s" in %s was never imported. Did you maybe forget to add a "use" statement for this annotation?', $name, $this->context));
             }
         }
